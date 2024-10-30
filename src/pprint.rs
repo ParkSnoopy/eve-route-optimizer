@@ -12,11 +12,13 @@ use nu_ansi_term::Color;
 
 
 
-fn prettify_route(route: &Route) -> String {
-    format!("{}  {}  {}",
-        nu_ansi_term::Color::LightYellow.paint(">>>"),
+fn prettify_route(global_state: &GlobalState, route: &Route) -> String {
+    format!("{}  {}  {}  {}  {}",
+        prettify_route_prefix(global_state),
+        Color::LightYellow.paint(">>>"),
         route.iter().map(|r| Color::LightCyan.paint(r)).join(&Color::DarkGray.paint(" -> ").to_string()),
-        nu_ansi_term::Color::LightYellow.paint(">>>"),
+        Color::LightYellow.paint(">>>"),
+        prettify_route_postfix(global_state),
     )
 }
 
@@ -32,9 +34,29 @@ pub fn route_summary(global_state: &GlobalState) {
     println!("  ----------[ ROUTES ]----------{postfix_bar}");
     println!();
     for route in curr_shortest_lock.routes.iter() {
-        println!( "    {}", prettify_route(route) );
+        println!( "  {}", prettify_route(global_state, route) );
     }
     println!();
     println!("  ------------------------------{postfix_bar}");
     println!();
+}
+
+fn prettify_route_prefix(global_state: &GlobalState) -> String {
+    match global_state.cli_args.start.as_str() {
+        "" => "".to_string(),
+        _  => format!("{}  {}",
+            Color::LightYellow.paint(">>>"),
+            Color::LightBlue.paint(&global_state.cli_args.start),
+        ),
+    }
+}
+
+fn prettify_route_postfix(global_state: &GlobalState) -> String {
+    match global_state.cli_args.start.as_str() {
+        "" => "".to_string(),
+        _  => format!("{}  {}",
+            Color::LightBlue.paint(&global_state.cli_args.end),
+            Color::LightYellow.paint(">>>"),
+        ),
+    }
 }

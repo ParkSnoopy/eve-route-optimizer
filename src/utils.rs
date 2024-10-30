@@ -14,15 +14,23 @@ use scraper::{ Html, Selector };
     url.trim_start_matches(config::ROUTE_SEARCH_URL_PREFIX).trim_end_matches(config::ROUTE_SEARCH_URL_POSTFIX).split(':').map(|s| s.to_owned()).collect()
 }*/
 
-fn route_to_url(route_option: &RouteOption, route: &Route) -> String {
-    format!("{}{}{}{}",
+fn route_to_url(global_state: &GlobalState, route: &Route) -> String {
+    format!("{}{}{}{}{}{}",
         config::ROUTE_SEARCH_URL_PREFIX,
-        match route_option {
+        match global_state.cli_args.route_option {
             RouteOption::Fastest => "",
             RouteOption::Highsec => "2:",
             RouteOption::LowNull => "3:",
         },
+        match global_state.cli_args.start.as_str() {
+            "" => "".to_string(),
+            _  => format!("{}:", global_state.cli_args.start),
+        },
         route.iter().join(":"),
+        match global_state.cli_args.end.as_str() {
+            "" => "".to_string(),
+            _  => format!(":{}", global_state.cli_args.end),
+        },
         config::ROUTE_SEARCH_URL_POSTFIX,
     )
 }
@@ -65,7 +73,7 @@ pub fn get_term_width() -> usize {
 }
 
 pub async fn get_route_length(global_state: &GlobalState, route: &Route) -> anyhow::Result<(usize, Route)> {
-    let url = route_to_url(&global_state.cli_args.route_option, route);
+    let url = route_to_url(&global_state, route);
     //dbg!(&url);
 
     let resp = global_state.req_client.get(&url).send().await?;
