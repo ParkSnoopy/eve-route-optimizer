@@ -9,11 +9,15 @@ use crate::{
 use std::iter::repeat;
 
 use nu_ansi_term::Color;
-
+use supports_hyperlinks::Stream;
 
 
 fn prettify_route(global_state: &GlobalState, route: &Route) -> String {
-    format!("{}  {}  {}  {}  {}",
+    format!("{}{}  {}  {}  {}  {}",
+        match supports_hyperlinks::on(Stream::Stdout) {
+            true  => Color::Fixed(088).paint("[GateCheck]").hyperlink(utils::route_to_gatecheck_url(global_state, route)),
+            false => "".into(),
+        },
         prettify_route_prefix(global_state),
         Color::LightYellow.paint(">>>"),
         route.iter().map(|r| Color::LightCyan.paint(r)).join(&Color::DarkGray.paint(" -> ").to_string()),
@@ -34,11 +38,10 @@ pub fn route_summary(global_state: &GlobalState) {
     println!("  ----------[ ROUTES ]----------{postfix_bar}");
     println!();
     for route in curr_shortest_lock.routes.iter() {
-        println!( "  {}", prettify_route(global_state, route) );
+        println!("  {}", prettify_route(global_state, route));
     }
     println!();
     println!("  ------------------------------{postfix_bar}");
-    println!();
 }
 
 fn prettify_route_prefix(global_state: &GlobalState) -> String {

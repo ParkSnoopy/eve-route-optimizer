@@ -14,6 +14,31 @@ use scraper::{ Html, Selector };
     url.trim_start_matches(config::ROUTE_SEARCH_URL_PREFIX).trim_end_matches(config::ROUTE_SEARCH_URL_POSTFIX).split(':').map(|s| s.to_owned()).collect()
 }*/
 
+pub fn route_to_gatecheck_url(global_state: &GlobalState, route: &Route) -> String {
+    let full_route: Route = {
+        let mut full_route = Vec::new();
+        if global_state.cli_args.start != "".to_string() {
+            full_route.push(global_state.cli_args.start.clone());
+        }
+        full_route.extend(route.clone());
+        if global_state.cli_args.end != "".to_string() {
+            full_route.push(global_state.cli_args.end.clone());
+        }
+        full_route
+    };
+    format!("{}{}:{}:{}{}",
+        config::ROUTE_GATECHECK_URL_PREFIX,
+        full_route[0],
+        full_route[1..].join(","),
+        match global_state.cli_args.route_option {
+            RouteOption::Fastest => "shortest",
+            RouteOption::Highsec => "secure",
+            RouteOption::LowNull => "insecure",
+        },
+        config::ROUTE_GATECHECK_URL_POSTFIX,
+    )
+}
+
 fn route_to_url(global_state: &GlobalState, route: &Route) -> String {
     format!("{}{}{}{}{}{}",
         config::ROUTE_SEARCH_URL_PREFIX,
