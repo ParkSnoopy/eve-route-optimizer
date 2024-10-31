@@ -1,6 +1,6 @@
 [package]
 name = "route-optimizer"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["ParkSnoopy <117149837+ParkSnoopy@users.noreply.github.com>"]
 edition = "2021"
 license = "AGPL-3.0"
@@ -17,6 +17,7 @@ scraper = "0.20.0"
 term_size = "0.3.2"
 tokio = { version = "1.41.0", features = ["macros", "rt-multi-thread"] }
 once_cell = "1.20.2"
+supports-hyperlinks = "3.0.0"
 
 [target."cfg(windows)".dependencies]
 enable-ansi-support = "0.2.1"
