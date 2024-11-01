@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use crate::{
     config,
-    state::GlobalState,
+    state::global::GlobalState,
     types::{ Route, RouteOption },
 };
 

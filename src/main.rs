@@ -18,7 +18,7 @@ mod state;
 async fn main() -> anyhow::Result<()> {
 
     use std::sync::{ Arc };
-    use state::GlobalState;
+    use state::global::GlobalState;
 
     init();
 
