@@ -16,11 +16,9 @@ mod state;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-
+    init();
     use std::sync::{ Arc };
     use state::global::GlobalState;
-
-    init();
 
     let global_state: Arc<GlobalState> = Arc::new(GlobalState::with_init(
         cli::Args::parse(),
@@ -91,6 +89,7 @@ async fn main() -> anyhow::Result<()> {
 }
 
 fn init() {
+    print!("\n\n\n");
     #[cfg(target_os = "windows")]
     {
         enable_ansi_support::enable_ansi_support().unwrap();
