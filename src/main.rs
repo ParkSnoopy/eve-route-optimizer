@@ -12,6 +12,9 @@ mod types;
 mod utils;
 mod state;
 
+// debuging
+#[allow(unused)]
+mod trace;
 
 
 #[tokio::main]
