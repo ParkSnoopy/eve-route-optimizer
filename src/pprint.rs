@@ -30,9 +30,7 @@ pub fn route_summary(global_state: &GlobalState) {
     let postfix_bar: String = repeat('-').take( utils::get_term_width() - 40 ).collect();
     let curr_shortest_lock = global_state.curr_shortest.read().unwrap();
 
-    println!();
-    println!();
-    println!();
+    print!("\n\n\n\n\n");
     println!("  Shortest Route Length is '{}'", Color::LightCyan.paint(curr_shortest_lock.length.to_string()));
     println!();
     println!("  ----------[ ROUTES ]----------{postfix_bar}");
