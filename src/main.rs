@@ -31,9 +31,9 @@ async fn main() -> anyhow::Result<()> {
             .build()?
     ));
 
-    // route_length_tuples: Iterator<Vec<Result<usize>>>
+    // route_length_tuples: impl Iterator<(route_length:usize, route:Route)>
     let route_length_tuples = futures::stream::iter(
-        global_state.all_routes.iter().map(|route| {
+        global_state.all_routes_iter().map(|route| {
             {
                 let global_state = global_state.clone();
 
