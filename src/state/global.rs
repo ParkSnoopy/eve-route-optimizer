@@ -8,6 +8,7 @@ use crate::{
     config,
     cli,
     types::Route,
+    //trace,
 };
 
 use std::sync::{ Arc, RwLock };

@@ -55,7 +55,7 @@ async fn main() -> anyhow::Result<()> {
         })
     ).buffer_unordered(global_state.cli_args.concurrent);
 
-    print!("\n\n{}", global_state.fetch_state.read().unwrap().describe());
+    global_state.fetch_state.read().unwrap().describe();
 
     let _ = route_length_tuples
         .for_each(|length_tuple| {
@@ -82,7 +82,7 @@ async fn main() -> anyhow::Result<()> {
 
                 }
 
-                print!("{}", fetch_state.read().unwrap().describe());
+                fetch_state.read().unwrap().describe();
             }
         }).await;
 
