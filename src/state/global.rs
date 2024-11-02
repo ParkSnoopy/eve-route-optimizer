@@ -1,5 +1,6 @@
-// Trait for `<Vec>.permutations(k)`
+// Trait for `<Vec>.permutations(k)` and calculate its length
 use itertools::Itertools;
+use factorial::Factorial;
 
 use super::fetch::FetchState;
 
@@ -20,40 +21,45 @@ pub struct CurrentShortest{
 
 pub struct GlobalState {
     pub cli_args: cli::Args,
+    pub parsed_route: Route,
+
     pub req_client: reqwest::Client,
+
     pub fetch_state: Arc<RwLock<FetchState>>,
     pub curr_shortest: Arc<RwLock<CurrentShortest>>,
 
-    pub all_routes_iter: Box<dyn Iterator<Item=Route>>,
+    //pub all_routes_iter: Box<dyn Iterator<Item=Route>>,
 }
 
 impl GlobalState {
     pub fn with_init(args: cli::Args, client: reqwest::Client) -> GlobalState {
-        let mut gs = GlobalState {
+        GlobalState {
+            parsed_route: args.route.split(config::ROUTE_SPLIT_CHAR).map(String::from).collect(),
             cli_args: args,
+
             req_client: client,
+
             fetch_state: Arc::new(RwLock::new(FetchState::new())),
             curr_shortest: Arc::new(RwLock::new(CurrentShortest {
                 routes: Vec::new(),
                 length: usize::MAX,
             })),
-
-            all_routes_iter: Box::new(Vec::new().into_iter()),
-        };
-        let mut all_routes_iter = Box::new(Vec::new());
-        gs.init(&mut all_routes_iter);
-        gs
+        }
     }
 
-    fn init(&mut self, all_routes_iter: &mut Box<dyn Iterator<Item=Route>>) {
-        let route_split_iter = self.cli_args.route.split(config::ROUTE_SPLIT_CHAR);
-        let route_count = route_split_iter.size_hint().0;
-
-        *all_routes_iter = Box::new(
-            route_split_iter
-                .map(String::from)
-                .permutations(route_count)
+    pub fn all_routes_iter(&self) -> impl Iterator<Item=Route> {
+        self.fetch_state.write().unwrap().set_total(
+            match self.parsed_route.len().checked_factorial() /* which is length of permutation iterator */ {
+                Some(total) => total,
+                None        => usize::MAX,
+            }
         );
-        self.fetch_state.write().unwrap().set_total(all_routes_iter.size_hint().0);
+
+        //trace::debug(format!("{:?}", self.parsed_route));
+
+        //let temp: Vec<Route> = self.parsed_route.clone().into_iter().permutations(self.parsed_route.len()).collect();
+        //trace::debug(format!("{:?}", temp));
+
+        self.parsed_route.clone().into_iter().permutations(self.parsed_route.len())
     }
 }
