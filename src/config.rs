@@ -3,17 +3,5 @@ pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb
 pub const ROUTE_SEARCH_URL_PREFIX: &str = "https://evemaps.dotlan.net/route/";
 pub const ROUTE_SEARCH_URL_POSTFIX: &str = "";
 
-pub const ROUTE_GATECHECK_URL_PREFIX: &str = "https://eve-gatecheck.space/eve/#";
-pub const ROUTE_GATECHECK_URL_POSTFIX: &str = "";
-
-pub const DONE_BAR_CHAR: char = '#';
-pub const TODO_BAR_CHAR: char = '.';
-
-pub const HEAT_BAR_CHAR: char = '|';
-pub const COOL_BAR_CHAR: char = '|';
-
-pub const DEFAULT_PARAREL_REQUEST: usize = 60;
-pub const ROUTE_SPLIT_CHAR: char = ',';
-
-pub const REQUEST_OVERHEAT: usize = 200;
-pub const COOLDOWN_INTERVAL_MILLS: u64 = 50;
+pub const DEFAULT_PARAREL_REQUEST: usize = 10;
+pub const ROUTE_SPLIT_CHAR: &[char] = &[',', ':'];

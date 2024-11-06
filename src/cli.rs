@@ -1,29 +1,31 @@
+use clap::Parser;
+
 use crate::{
     config,
-    types::RouteOption,
+    route::{ Route, RouteOption },
+    system::System,
 };
-
-use clap::Parser;
 
 
 
 #[derive(Parser, Debug, Clone)]
 #[command(version, about, long_about = None)]
 pub struct Args {
-    // `:` separated DOTLAN-formatted route. e.g.) `Jita:Amarr:Hek:BKG-Q2:SI-I89`
-    #[arg(short, long)]
-    pub route: String,
+    // specific separator (,:) separated system names 
+    // ex: Jita,Amarr,Hek,BKG-Q2,SI-I89
+    #[arg(short, long, value_parser = clap::value_parser!(Route))]
+    pub route: Route,
 
     // system to start route
-    #[arg(short, long, default_value_t=String::from(""))]
-    pub start: String,
+    #[arg(short, long, value_parser = clap::value_parser!(System))]
+    pub start: System,
 
     // system to end route
-    #[arg(short, long, default_value_t=String::from(""))]
-    pub end: String,
+    #[arg(short, long, value_parser = clap::value_parser!(System))]
+    pub end: Option<System>,
 
     // route option (one of `fastest` `highsec` `low-null`)
-    #[arg(value_enum, long, default_value_t=RouteOption::Fastest)]
+    #[arg(short = 'o', long, value_enum, default_value_t=RouteOption::Fastest)]
     pub route_option: RouteOption,
 
     // concurrent fetches (too high may blocked by DOTLAN)
