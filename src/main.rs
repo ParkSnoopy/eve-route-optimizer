@@ -1,100 +1,114 @@
-// Trait for async `<futures::stream::Iter>.for_each(...)`
-use futures::StreamExt;
-
-// Trait for direct `cli::Args::parse()` instead `cli::Args::try_parse().unwrap()`
-use clap::Parser;
-
-// attach modules
-mod cli;
 mod config;
-mod pprint;
-mod types;
-mod utils;
-mod state;
 
-// debuging
+mod cli;
+mod request;
+
+mod route;
+mod system;
+
 #[allow(unused)]
 mod trace;
+mod progress;
+
+use system::{ SystemPair, SystemHolder };
+use request::{ make_url, parse_text_into_length };
+
+use futures::{ stream, StreamExt };
+use reqwest::Client;
+use std::sync::{ LazyLock, RwLock };
+
+use clap::Parser;
+use nu_ansi_term::Color;
+
+
+
+pub static PROGRESS_HOLDER: LazyLock<RwLock<progress::ProgressHolder>> = LazyLock::new(|| RwLock::new(
+    progress::ProgressHolder::new()
+));
+pub static CLI_ARGS: LazyLock<RwLock<cli::Args>> = LazyLock::new(|| RwLock::new(
+    cli::Args::parse()
+));
+pub static REQUEST_CLIENT: LazyLock<Client> = LazyLock::new(|| 
+    Client::builder()
+        .cookie_store(true)
+        .user_agent(config::USER_AGENT)
+        .build()
+        .unwrap()
+);
+pub static SYSTEM_HOLDER: LazyLock<RwLock<SystemHolder>> = LazyLock::new(|| RwLock::new(
+    SystemHolder::new()
+));
+
 
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    init();
-    use std::sync::{ Arc };
-    use state::global::GlobalState;
+async fn main() -> color_eyre::Result<()> {
+    enable_ansi_support::enable_ansi_support()?;
+    color_eyre::install()?;
 
-    let global_state: Arc<GlobalState> = Arc::new(GlobalState::with_init(
-        cli::Args::parse(),
-        reqwest::Client::builder()
-            .cookie_store(true)
-            .user_agent(config::USER_AGENT)
-            .build()?
-    ));
+    SYSTEM_HOLDER.write().unwrap().register_route(&CLI_ARGS.read().unwrap().route);
+    SYSTEM_HOLDER.write().unwrap().register_system(&CLI_ARGS.read().unwrap().start);
+    match &CLI_ARGS.read().unwrap().end {
+        Some(system) => {
+            SYSTEM_HOLDER.write().unwrap().register_system(&system);
+        },
+        _ => (),
+    }
 
-    // route_length_tuples: impl Iterator<(route_length:usize, route:Route)>
-    let route_length_tuples = futures::stream::iter(
-        global_state.all_routes_iter().map(|route| {
-            {
-                let global_state = global_state.clone();
+    let system_pairs: Vec<SystemPair> = SYSTEM_HOLDER.read().unwrap().all_inter_systems_iter().collect();//.map(|system_pair| make_url(&system_pair)).collect();
 
-                async move {
-                    global_state.fetch_state.write().unwrap().add_fetching();
+    let bodies = stream::iter(system_pairs)
+        .map(|system_pair| {
+            let client = &REQUEST_CLIENT;
+            async move {
+                trace::info(
+                    format!("Sending request for: {}",
+                        Color::Fixed(118).paint( system_pair.to_string() )
+                    )
+                );
 
-                    match utils::get_route_length(&global_state, &route).await {
-                        Ok(route_length_tuple) => {
-                            global_state.fetch_state.write().unwrap().add_success();
-                            route_length_tuple
-                        },
-                        Err(_error) => {
-                            global_state.fetch_state.write().unwrap().add_failure();
-                            (usize::MAX, Vec::new())
-                        },
-                    }
-                }
+                let url = make_url(&system_pair);
+                let resp = client.get(url).send().await.unwrap();
+                ( system_pair, resp.text().await )
             }
         })
-    ).buffer_unordered(global_state.cli_args.concurrent);
+        .buffer_unordered(CLI_ARGS.read().unwrap().concurrent);
 
-    global_state.fetch_state.read().unwrap().describe();
+    bodies
+        .for_each(|(system_pair, resp_text_result)| async move {
+            match resp_text_result {
+                Ok(resp_text) => {
+                    let distance = parse_text_into_length(&resp_text);
+                    system_pair.set_distance(distance).unwrap();
 
-    let _ = route_length_tuples
-        .for_each(|length_tuple| {
-            let global_state = global_state.clone();
-            let fetch_state   = global_state.fetch_state.clone();
-            let curr_shortest = global_state.curr_shortest.clone();
-
-            async move {
-                let (route_length, route) = length_tuple;
-
-                let mut curr_shortest_lock = curr_shortest.write().unwrap();
-
-                if route_length < curr_shortest_lock.length {
-
-                    curr_shortest_lock.routes.clear();
-                    curr_shortest_lock.routes.push(route.to_owned());
-                    curr_shortest_lock.length = route_length;
-
-                } else if route_length == curr_shortest_lock.length {
-
-                    curr_shortest_lock.routes.push(route.to_owned());
-
-                } else {
-
-                }
-
-                fetch_state.read().unwrap().describe();
+                    trace::ok(
+                        format!("Setting distance '{}' between system {}",
+                            Color::LightCyan.paint( distance.to_string() ),
+                            Color::Fixed(118).paint( system_pair.to_string() ),
+                        )
+                    );
+                },
+                Err(e) => {
+                    trace::error(format!("Error while processing request"));
+                    trace::debug(e.to_string());
+                },
             }
-        }).await;
+        })
+        .await;
 
-    pprint::route_summary(&global_state);
+    println!();
+    trace::ok("Information fetch complete!");
+    trace::info("Start to build Shortest Path...");
+
+    let calculation_count: u128 = SYSTEM_HOLDER.read().unwrap().permutation_size_hint().unwrap_or(u128::MAX);
+    PROGRESS_HOLDER.write().unwrap().set_total(calculation_count);
+    trace::info(format!("'{}' Calculation(s) to process", calculation_count));
+    println!();
+
+    let feedback_step: usize = std::cmp::max(1, calculation_count/200) as usize;
+    let current_shortest = SYSTEM_HOLDER.read().unwrap().build_shortest_path( feedback_step );
+
+    current_shortest.report_stdout();
 
     Ok(())
-}
-
-fn init() {
-    print!("\n\n\n");
-    #[cfg(target_os = "windows")]
-    {
-        enable_ansi_support::enable_ansi_support().unwrap();
-    }
 }
