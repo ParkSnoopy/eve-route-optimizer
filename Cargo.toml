@@ -21,9 +21,3 @@ factorial = "0.4.0"
 
 [target."cfg(windows)".dependencies]
 enable-ansi-support = "0.2.1"
-
-[build-dependencies]
-anyhow = "1.0.92"
-
-[target."cfg(windows)".build-dependencies]
-winres = "0.1.12"
