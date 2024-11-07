@@ -62,6 +62,10 @@ impl SystemHolder {
         let system_from: &SyncSystem = &self.get(
             crate::CLI_ARGS.read().unwrap().start.name()
         );
+        let system_to: Option<&SyncSystem> = match &crate::CLI_ARGS.read().unwrap().end {
+            Some(system) => Some(self.get(system.name())),
+            None => None,
+        };
 
         let mut systems: Vec<SyncSystem> = self.inner.clone().into_values().collect();
 
@@ -71,7 +75,16 @@ impl SystemHolder {
             .unwrap();
         systems.remove(system_from_index);
 
-        let mut current_shortest = CurrentShortest::new();
+        match system_to {
+            Some(_) => {
+                let system_from_index = systems
+                    .iter()
+                    .position(|ss| ss.read().unwrap().name() == system_to.unwrap().read().unwrap().name())
+                    .unwrap();
+                systems.remove(system_from_index);
+            },
+            None => {},
+        };
 
         for (idx, sync_route) in systems.clone().into_iter().permutations(systems.len()).enumerate() {
             if idx.wrapping_rem(feedback_step) == 0 {
@@ -85,24 +98,29 @@ impl SystemHolder {
                     system_from_rlock.name(),
                     sync_route[0].read().unwrap().name(),
                 )));
+            match &crate::CLI_ARGS.read().unwrap().end {
+                Some(system) => {
+                    route_length += sync_route[sync_route.len()-1]
+                        .read().unwrap()
+                        .get_distance_to(
+                            self.get(system.name())
+                        ).unwrap();
+                },
+                None => {},
+            }
 
-            sync_route.iter().as_slice().windows(2).for_each(
-                |window| match window {
-                    [prev, next] => {
-                        let prev_rlock = prev.read().unwrap();
+            sync_route.windows(2).for_each(
+                |window| {
+                    let prev_rlock = window[0].read().unwrap();
 
-                        let length_step: u64 = prev_rlock
-                            .get_distance_to(&next)
-                            .expect( &trace::string::error( format!("Distance from '{}' to '{}' not set",
-                                prev_rlock.name(),
-                                next.read().unwrap().name(),
-                            )));
+                    let length_step: u64 = prev_rlock
+                        .get_distance_to(&window[1])
+                        .expect( &trace::string::error( format!("Distance from '{}' to '{}' not set",
+                            prev_rlock.name(),
+                            window[1].read().unwrap().name(),
+                        )));
 
-                        route_length += length_step;
-                    },
-                    _ => {
-                        trace::error("Unexpected error: window size must be 2, got non 2 value");
-                    }
+                    route_length += length_step;
                 }
             );
 
