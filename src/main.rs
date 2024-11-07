@@ -58,15 +58,19 @@ async fn main() -> color_eyre::Result<()> {
 
     let system_pairs: Vec<SystemPair> = SYSTEM_HOLDER.read().unwrap().all_inter_systems_iter().collect();//.map(|system_pair| make_url(&system_pair)).collect();
 
+    println!();
+    trace::info("Fetching distances between system...");
+    println!();
+
     let bodies = stream::iter(system_pairs)
         .map(|system_pair| {
             let client = &REQUEST_CLIENT;
             async move {
-                trace::info(
+                /*trace::info(
                     format!("Sending request for: {}",
                         Color::Fixed(118).paint( system_pair.to_string() )
                     )
-                );
+                );*/
 
                 let url = make_url(&system_pair);
                 let resp = client.get(url).send().await.unwrap();
@@ -98,12 +102,17 @@ async fn main() -> color_eyre::Result<()> {
         .await;
 
     println!();
+
     trace::ok("Information fetch complete!");
+
+    println!();
+
     trace::info("Start to build Shortest Path...");
 
     let calculation_count: u128 = SYSTEM_HOLDER.read().unwrap().permutation_size_hint().unwrap_or(u128::MAX);
     PROGRESS_HOLDER.write().unwrap().set_total(calculation_count);
     trace::info(format!("'{}' Calculation(s) to process", calculation_count));
+
     println!();
 
     let feedback_step: usize = std::cmp::max(1, calculation_count/200) as usize;

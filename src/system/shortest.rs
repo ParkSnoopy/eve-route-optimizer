@@ -34,16 +34,19 @@ impl CurrentShortest {
     }
 
     pub fn report_stdout(&self) {
+        println!();
+        println!();
+        println!();
         self.route_summary();
+        println!();
+        println!();
+        println!();
     }
 
     fn route_summary(&self) {
-        println!();
-        println!();
-        println!();
         trace::ok(format!("  Shortest Route Length is '{}'", colored(039, self.length.to_string())));
         println!();
-        println!("{}", colored(048, "  [ ROUTES ]"));
+        println!("{}", colored(048, "  [ ROUTE ]"));
         println!();
         for (idx, route) in self.routes.iter().enumerate() {
             println!("  - {} : {}",
@@ -51,7 +54,6 @@ impl CurrentShortest {
                 prettify_route(route),
             );
         }
-        println!();
     }
 }
 
@@ -60,11 +62,37 @@ fn colored<S: AsRef<str>>(code: u8, msg: S) -> String {
 }
 
 fn prettify_route(route: &SyncRoute) -> String {
-    format!("{}  {}  {}  {}  {}",
-        colored(220, ">>>"),
+    let yellow_arrow = colored(220, ">>>");
+    format!("{yellow_arrow} {}  {yellow_arrow}  {}  {yellow_arrow}{}",
         colored(087, crate::CLI_ARGS.read().unwrap().start.name() ),
-        colored(220, ">>>"),
-        route.iter().map(|r| colored(051, r.read().unwrap().name())).collect::<Vec<_>>().join(&colored(244, " -> ")),
-        colored(220, ">>>"),
+        route
+            .to_vec()
+            .windows(2)
+            .fold(
+                colored(051, route[0].read().unwrap().name()),
+                |acc, systems| {
+                    let curr_system_rlock = systems[0].read().unwrap();
+                    let next_system_rlock = systems[1].read().unwrap();
+                    let distance = curr_system_rlock.get_distance_to(&systems[1]).unwrap();
+
+                    format!("{}{}{}", acc, arrow_with_distance(distance), colored(051, next_system_rlock.name()))
+                }
+            ),
+        match &crate::CLI_ARGS.read().unwrap().end {
+            Some(system) => {
+                format!("  {} {yellow_arrow}",
+                    colored(087, system.name() ),
+                )
+            },
+            None => "".to_string(),
+        },
+    )
+}
+
+fn arrow_with_distance(distance: u64) -> String {
+    format!(" {}{}{} ",
+        colored(238, "-"),
+        colored(250, format!("({})", distance)),
+        colored(238, ">")
     )
 }
