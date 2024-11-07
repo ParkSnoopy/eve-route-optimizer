@@ -87,6 +87,9 @@ impl SystemHolder {
         };
 
         for (idx, sync_route) in systems.clone().into_iter().permutations(systems.len()).enumerate() {
+        //trace::debug("- CASE: with RAYON");
+        //trace::debug("Benchmark start");
+        //let bencher = crate::bench::Bencher::start_new();
             if idx.wrapping_rem(feedback_step) == 0 {
                 crate::PROGRESS_HOLDER.write().unwrap().feedback(idx as u128);
             }
@@ -126,6 +129,9 @@ impl SystemHolder {
 
             current_shortest.register(&sync_route, route_length);
         }
+        //trace::debug("Bench set to done");
+        //let dt = bencher.done();
+        //trace::debug(format!("Time elapsed: {}", dt));
 
         // last report on 100%
         crate::PROGRESS_HOLDER.write().unwrap().feedback(self.permutation_size_hint().unwrap_or(u128::MAX));
