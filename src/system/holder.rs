@@ -1,6 +1,7 @@
 use derive_more::{ IntoIterator, AsRef };
 use factorial::Factorial;
 use itertools::Itertools;
+use rayon::prelude::*;
 
 use std::collections::{ HashMap };
 use std::sync::{ Arc, RwLock };
@@ -8,6 +9,7 @@ use std::sync::{ Arc, RwLock };
 use crate::{
     trace,
     route::Route,
+    system::ArcRwLock,
 };
 use super::{
     SyncSystem,
@@ -31,7 +33,7 @@ impl SystemHolder {
         }
     }
 
-    pub fn get(&self, system_name: &String) -> &Arc<RwLock<System>> {
+    pub fn get(&self, system_name: &String) -> &SyncSystem {
         self.inner.get(system_name).unwrap()
     }
 
@@ -58,8 +60,8 @@ impl SystemHolder {
         ((self.inner.len()-1) as u128).checked_factorial()
     }
 
-    pub fn build_shortest_path(&self, feedback_step: usize) -> CurrentShortest {
-        let system_from: &SyncSystem = &self.get(
+    pub fn build_shortest_path(&self, feedback_step: usize) -> ArcRwLock<CurrentShortest> {
+        let system_from: &SyncSystem = self.get(
             crate::CLI_ARGS.read().unwrap().start.name()
         );
         let system_to: Option<&SyncSystem> = match &crate::CLI_ARGS.read().unwrap().end {
@@ -86,10 +88,13 @@ impl SystemHolder {
             None => {},
         };
 
-        for (idx, sync_route) in systems.clone().into_iter().permutations(systems.len()).enumerate() {
+        let current_shortest: ArcRwLock<CurrentShortest> = Arc::new(RwLock::new(CurrentShortest::new()));
+
         //trace::debug("- CASE: with RAYON");
         //trace::debug("Benchmark start");
         //let bencher = crate::bench::Bencher::start_new();
+
+        systems.clone().into_iter().permutations(systems.len()).enumerate().par_bridge().for_each(|(idx, sync_route)| {
             if idx.wrapping_rem(feedback_step) == 0 {
                 crate::PROGRESS_HOLDER.write().unwrap().feedback(idx as u128);
             }
@@ -127,8 +132,9 @@ impl SystemHolder {
                 }
             );
 
-            current_shortest.register(&sync_route, route_length);
-        }
+            current_shortest.write().unwrap().register(&sync_route, route_length);
+        });
+
         //trace::debug("Bench set to done");
         //let dt = bencher.done();
         //trace::debug(format!("Time elapsed: {}", dt));

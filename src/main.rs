@@ -118,7 +118,7 @@ async fn main() -> color_eyre::Result<()> {
     let feedback_step: usize = std::cmp::max(1, calculation_count/200) as usize;
     let current_shortest = SYSTEM_HOLDER.read().unwrap().build_shortest_path( feedback_step );
 
-    current_shortest.report_stdout();
+    current_shortest.read().unwrap().report_stdout();
 
     Ok(())
 }
