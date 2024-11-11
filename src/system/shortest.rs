@@ -75,7 +75,7 @@ fn prettify_route(route: &SyncRoute) -> String {
                     let next_system_rlock = systems[1].read().unwrap();
                     let distance = curr_system_rlock.get_distance_to(&systems[1]).unwrap();
 
-                    format!("{}{}{}", acc, arrow_with_distance(distance), colored(051, next_system_rlock.name()))
+                    format!("{}{}{}", acc, arrow_with_distance(distance), colored(082, next_system_rlock.name()))
                 }
             ),
         match &crate::CLI_ARGS.read().unwrap().end {
