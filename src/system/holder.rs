@@ -78,12 +78,14 @@ impl SystemHolder {
         systems.remove(system_from_index);
 
         match system_to {
-            Some(_) => {
-                let system_from_index = systems
-                    .iter()
-                    .position(|ss| ss.read().unwrap().name() == system_to.unwrap().read().unwrap().name())
-                    .unwrap();
-                systems.remove(system_from_index);
+            Some(system_to) => {
+                if system_to.read().unwrap().name() != system_from.read().unwrap().name() {
+                    let system_from_index = systems
+                        .iter()
+                        .position(|ss| ss.read().unwrap().name() == system_to.read().unwrap().name())
+                        .unwrap();
+                    systems.remove(system_from_index);
+                }
             },
             None => {},
         };
