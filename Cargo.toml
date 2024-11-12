@@ -1,6 +1,6 @@
 [package]
 name = "route-optimizer"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["ParkSnoopy <117149837+ParkSnoopy@users.noreply.github.com>"]
 edition = "2021"
 license = "AGPL-3.0"
