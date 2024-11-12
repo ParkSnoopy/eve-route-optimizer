@@ -62,7 +62,7 @@ fn prettify_route(route: &SyncRoute) -> String {
             .to_vec()
             .windows(2)
             .fold(
-                colored(051, route[0].read().unwrap().name()),
+                colored(082, route[0].read().unwrap().name()),
                 |acc, systems| {
                     let curr_system_rlock = systems[0].read().unwrap();
                     let next_system_rlock = systems[1].read().unwrap();
