@@ -11,13 +11,13 @@ use crate::{
 
 
 
-#[derive(Clone, Debug, IntoIterator)]
+#[derive(Clone, IntoIterator)]
 pub struct Route {
     #[into_iterator(owned, ref, ref_mut)]
     inner: HashSet<System>,
 }
 
-#[derive(clap::ValueEnum, Clone, Debug)]
+#[derive(clap::ValueEnum, Clone)]
 pub enum RouteOption {
     Fastest,
     Highsec,

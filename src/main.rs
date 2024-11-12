@@ -9,7 +9,6 @@ mod system;
 #[allow(unused)]
 mod trace;
 mod progress;
-//mod bench;
 
 use system::{ SystemPair, SystemHolder };
 use request::{ make_url, parse_text_into_length };
@@ -44,6 +43,8 @@ pub static SYSTEM_HOLDER: LazyLock<RwLock<SystemHolder>> = LazyLock::new(|| RwLo
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
+
+    #[cfg(all( target_family = "windows" ))]
     enable_ansi_support::enable_ansi_support()?;
     color_eyre::install()?;
 
@@ -66,12 +67,6 @@ async fn main() -> color_eyre::Result<()> {
         .map(|system_pair| {
             let client = &REQUEST_CLIENT;
             async move {
-                /*trace::info(
-                    format!("Sending request for: {}",
-                        Color::Fixed(118).paint( system_pair.to_string() )
-                    )
-                );*/
-
                 let url = make_url(&system_pair);
                 let resp = client.get(url).send().await.unwrap();
                 ( system_pair, resp.text().await )
@@ -114,8 +109,10 @@ async fn main() -> color_eyre::Result<()> {
     trace::info(format!("'{}' Calculation(s) to process", calculation_count));
 
     println!();
+    println!();
+    println!();
 
-    let feedback_step: usize = std::cmp::max(1, calculation_count/200) as usize;
+    let feedback_step: usize = std::cmp::min(1_000_000, std::cmp::max(1, calculation_count/200) as usize);
     let current_shortest = SYSTEM_HOLDER.read().unwrap().build_shortest_path( feedback_step );
 
     current_shortest.read().unwrap().report_stdout();

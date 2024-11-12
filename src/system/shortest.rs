@@ -7,7 +7,6 @@ use super::{
 
 
 
-#[derive(Debug)]
 pub struct CurrentShortest{
     routes: Vec<SyncRoute>,
     length: u64,
@@ -28,18 +27,12 @@ impl CurrentShortest {
             self.length = length;
         } else if length == self.length {
             self.routes.push(sync_route.clone());
-        }/* else if length > self.length {
-
-        }*/
+        }
     }
 
     pub fn report_stdout(&self) {
         println!();
-        println!();
-        println!();
         self.route_summary();
-        println!();
-        println!();
         println!();
     }
 
@@ -69,7 +62,7 @@ fn prettify_route(route: &SyncRoute) -> String {
             .to_vec()
             .windows(2)
             .fold(
-                colored(051, route[0].read().unwrap().name()),
+                colored(082, route[0].read().unwrap().name()),
                 |acc, systems| {
                     let curr_system_rlock = systems[0].read().unwrap();
                     let next_system_rlock = systems[1].read().unwrap();

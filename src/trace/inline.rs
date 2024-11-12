@@ -1,60 +1,23 @@
-use nu_ansi_term::Color;
-
-
-
-fn before() {
-    print!("{}{}", "", ansi_escapes::EraseDown);
-}
-fn after() {
-    print!("{}", ansi_escapes::CursorUp(1));
-}
-
 pub fn clear() {
-    before();
-    after();
+    print!("\r{}", ansi_escapes::EraseDown);
 }
 
 pub fn ok<S: AsRef<str>>(msg: S) {
-    before();
-    println!("  {} {}",
-        Color::Fixed(082).paint("[  O K  ]"),
-        Color::Fixed(255).paint(msg.as_ref()),
-    );
-    after();
+    print!("{}{}  {}\n", ansi_escapes::CursorUp(1), ansi_escapes::EraseDown, ok!(msg));
 }
 
 pub fn info<S: AsRef<str>>(msg: S) {
-    before();
-    println!("  {} {}",
-        Color::Fixed(051).paint("[  INF  ]"),
-        Color::Fixed(255).paint(msg.as_ref()),
-    );
-    after();
+    print!("{}{}  {}\n", ansi_escapes::CursorUp(1), ansi_escapes::EraseDown, info!(msg));
 }
 
 pub fn warn<S: AsRef<str>>(msg: S) {
-    before();
-    println!("  {} {}",
-        Color::Fixed(172).paint("[  WRN  ]"),
-        Color::Fixed(255).paint(msg.as_ref()),
-    );
-    after();
+    print!("{}{}  {}\n", ansi_escapes::CursorUp(1), ansi_escapes::EraseDown, warn!(msg));
 }
 
 pub fn debug<S: AsRef<str>>(msg: S) {
-    before();
-    println!("  {} {}",
-        Color::Fixed(226).paint("[  DBG  ]"),
-        Color::Fixed(255).paint(msg.as_ref()),
-    );
-    after();
+    print!("{}{}  {}\n", ansi_escapes::CursorUp(1), ansi_escapes::EraseDown, debug!(msg));
 }
 
 pub fn error<S: AsRef<str>>(msg: S) {
-    before();
-    println!("  {} {}",
-        Color::Fixed(009).paint("[  ERR  ]"),
-        Color::Fixed(226).paint(msg.as_ref()),
-    );
-    after();
+    print!("{}{}  {}\n", ansi_escapes::CursorUp(1), ansi_escapes::EraseDown, error!(msg));
 }

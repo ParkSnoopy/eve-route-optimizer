@@ -5,3 +5,6 @@ pub const ROUTE_SEARCH_URL_POSTFIX: &str = "";
 
 pub const DEFAULT_PARAREL_REQUEST: usize = 10;
 pub const ROUTE_SPLIT_CHAR: &[char] = &[',', ':'];
+
+pub const DONE_BAR_CHAR: char = '#';
+pub const TODO_BAR_CHAR: char = '.';
