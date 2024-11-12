@@ -32,13 +32,13 @@ static SEL_3: LazyLock<Selector> = LazyLock::new(|| Selector::parse(r#"td"#).unw
 
 pub fn parse_text_into_length(text: &String) -> u64 {
     //trace::debug(format!("Parsing text from request: {}", &text[..20]));
-    Html::parse_document(text)
+    let distance: u64 = Html::parse_document(text)
         .select(&SEL_0)
         .next()
-        .expect(&trace::string::error("[ ERR ] Unexpected response format"))
+        .expect(&trace::string::error("Unexpected response format"))
         .select(&SEL_1)
         .next()
-        .unwrap()
+        .expect(&trace::string::error("System Name Invalid"))
         .select(&SEL_2)
         .last()
         .unwrap()
@@ -49,5 +49,7 @@ pub fn parse_text_into_length(text: &String) -> u64 {
         .replace('.', "")
         .trim()
         .parse()
-        .expect(&trace::string::error("[ ERR ] Failed to parse route length"))
+        .expect(&trace::string::error("Failed to parse route length"));
+
+    distance - 1 // route start from self
 }
