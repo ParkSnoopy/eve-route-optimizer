@@ -5,6 +5,11 @@ authors = ["ParkSnoopy <117149837+ParkSnoopy@users.noreply.github.com>"]
 edition = "2021"
 license = "AGPL-3.0"
 
+[profile.release]
+panic = "abort"
+strip = true
+lto   = true
+
 [dependencies]
 ansi-escapes = "0.2.0"
 nu-ansi-term = "0.50.1"
