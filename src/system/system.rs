@@ -11,7 +11,7 @@ use super::{
 
 
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct System {
     name: String,
     distance_table: HashMap<String, u64>,

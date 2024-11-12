@@ -8,7 +8,7 @@ use crate::{
 
 
 
-#[derive(Parser, Debug, Clone)]
+#[derive(Parser, Clone)]
 #[command(version, about, long_about = None)]
 pub struct Args {
     // specific separator (,:) separated system names 

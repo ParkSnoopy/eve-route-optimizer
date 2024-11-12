@@ -1,4 +1,4 @@
-use derive_more::{ IntoIterator, AsRef };
+use derive_more::IntoIterator;
 use factorial::Factorial;
 use itertools::Itertools;
 use rayon::prelude::*;
@@ -20,7 +20,7 @@ use super::{
 
 
 
-#[derive(Debug, AsRef, IntoIterator)]
+#[derive(IntoIterator)]
 pub struct SystemHolder {
     #[into_iterator(owned, ref, ref_mut)]
     inner: HashMap<String, SyncSystem>,
@@ -92,10 +92,6 @@ impl SystemHolder {
 
         let current_shortest: ArcRwLock<CurrentShortest> = Arc::new(RwLock::new(CurrentShortest::new()));
 
-        //trace::debug("- CASE: with RAYON");
-        //trace::debug("Benchmark start");
-        //let bencher = crate::bench::Bencher::start_new();
-
         systems.clone().into_iter().permutations(systems.len()).enumerate().par_bridge().for_each(|(idx, sync_route)| {
             if idx.wrapping_rem(feedback_step) == 0 {
                 crate::PROGRESS_HOLDER.write().unwrap().feedback(idx as u128);
@@ -136,10 +132,6 @@ impl SystemHolder {
 
             current_shortest.write().unwrap().register(&sync_route, route_length);
         });
-
-        //trace::debug("Bench set to done");
-        //let dt = bencher.done();
-        //trace::debug(format!("Time elapsed: {}", dt));
 
         // last report on 100%
         crate::PROGRESS_HOLDER.write().unwrap().feedback(self.permutation_size_hint().unwrap_or(u128::MAX));
