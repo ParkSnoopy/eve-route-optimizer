@@ -9,7 +9,6 @@ mod system;
 #[allow(unused)]
 mod trace;
 mod progress;
-//mod bench;
 
 use system::{ SystemPair, SystemHolder };
 use request::{ make_url, parse_text_into_length };
@@ -44,6 +43,8 @@ pub static SYSTEM_HOLDER: LazyLock<RwLock<SystemHolder>> = LazyLock::new(|| RwLo
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
+
+    #[cfg(all( target_family = "windows" ))]
     enable_ansi_support::enable_ansi_support()?;
     color_eyre::install()?;
 
