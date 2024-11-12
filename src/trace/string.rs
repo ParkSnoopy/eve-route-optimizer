@@ -1,38 +1,23 @@
-use nu_ansi_term::Color;
+use super::base::*;
 
 
 
 pub fn ok<S: AsRef<str>>(msg: S) -> String {
-    format!("{} {}",
-        Color::Fixed(082).paint("[  O K  ]"),
-        Color::Fixed(255).paint(msg.as_ref()),
-    )
+    ok!(msg)
 }
 
 pub fn info<S: AsRef<str>>(msg: S) -> String {
-    format!("{} {}",
-        Color::Fixed(051).paint("[  INF  ]"),
-        Color::Fixed(255).paint(msg.as_ref()),
-    )
+    info!(msg)
 }
 
 pub fn warn<S: AsRef<str>>(msg: S) -> String {
-    format!("{} {}",
-        Color::Fixed(172).paint("[  WRN  ]"),
-        Color::Fixed(255).paint(msg.as_ref()),
-    )
+    warn!(msg)
 }
 
 pub fn debug<S: AsRef<str>>(msg: S) -> String {
-    format!("{} {}",
-        Color::Fixed(226).paint("[  DBG  ]"),
-        Color::Fixed(255).paint(msg.as_ref()),
-    )
+    debug!(msg)
 }
 
 pub fn error<S: AsRef<str>>(msg: S) -> String {
-    format!("{} {}",
-        Color::Fixed(009).paint("[  ERR  ]"),
-        Color::Fixed(226).paint(msg.as_ref()),
-    )
+    error!(msg)
 }
