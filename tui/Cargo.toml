@@ -1,0 +1,20 @@
+[package]
+name = "route-optimizer-tui"
+version = "0.1.0"
+authors = ["ParkSnoopy <sunwoo2539@gmail.com>"]
+edition = "2021"
+license = "AGPL-3.0"
+
+[profile.release]
+panic = "abort"
+strip = true
+lto   = true
+
+[dependencies]
+ratatui = { version = "0.29.0", features = ["all-widgets", "crossterm"] }
+ctrlc = { version = "3.4.5", features = ["termination"] }
+
+# dev
+rand = "0.8.5"
+argh = "0.1.12"
+color-eyre = "0.6.3"
