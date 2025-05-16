@@ -1,5 +1,7 @@
 use nu_ansi_term::Color;
 
+use std::sync::{ Arc, RwLock };
+
 use crate::trace;
 use super::{
     SyncRoute,
@@ -56,8 +58,14 @@ fn colored<S: AsRef<str>>(code: u8, msg: S) -> String {
 
 fn prettify_route(route: &SyncRoute) -> String {
     let yellow_arrow = colored(220, ">>>");
-    format!("{yellow_arrow} {}  {yellow_arrow}  {}  {yellow_arrow}{}",
+    format!("{yellow_arrow}  {} {} {} {}",
         colored(087, crate::CLI_ARGS.read().unwrap().start.name() ),
+        // distance from start to first system
+        // start system has no distance table.
+        // so, distance is calculated from first system to start system
+        // and wrap start system into Arc<RwLock<T>>, 
+        // maybe there is better way but currently settle down on this way
+        arrow_with_distance( route[0].read().unwrap().get_distance_to( &Arc::new(RwLock::new(crate::CLI_ARGS.read().unwrap().start.clone())) ).unwrap() ),
         route
             .to_vec()
             .windows(2)
@@ -68,16 +76,20 @@ fn prettify_route(route: &SyncRoute) -> String {
                     let next_system_rlock = systems[1].read().unwrap();
                     let distance = curr_system_rlock.get_distance_to(&systems[1]).unwrap();
 
-                    format!("{}{}{}", acc, arrow_with_distance(distance), colored(082, next_system_rlock.name()))
+                    format!("{} {} {}", acc, arrow_with_distance(distance), colored(082, next_system_rlock.name()))
                 }
             ),
         match &crate::CLI_ARGS.read().unwrap().end {
             Some(system) => {
-                format!("  {} {yellow_arrow}",
+                format!("{} {}  {}",
+                    // distance from last system to end
+                    // same as start to first system
+                    arrow_with_distance( route[route.len()-1].read().unwrap().get_distance_to( &Arc::new(RwLock::new(crate::CLI_ARGS.read().unwrap().end.clone().unwrap())) ).unwrap() ),
                     colored(087, system.name() ),
+                    yellow_arrow,
                 )
             },
-            None => "".to_string(),
+            None => yellow_arrow.clone(),
         },
     )
 }

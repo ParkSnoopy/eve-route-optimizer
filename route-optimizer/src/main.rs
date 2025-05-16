@@ -67,7 +67,10 @@ async fn main() -> color_eyre::Result<()> {
         .map(|system_pair| {
             let client = &REQUEST_CLIENT;
             async move {
-                let url = make_url(&system_pair);
+                let url = make_url(
+                    &system_pair,
+                    CLI_ARGS.read().unwrap().avoid.as_avoid_url()
+                );
                 let resp = client.get(url).send().await.unwrap();
                 ( system_pair, resp.text().await )
             }

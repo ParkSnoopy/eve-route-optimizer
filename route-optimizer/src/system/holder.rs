@@ -8,7 +8,7 @@ use std::sync::{ Arc, RwLock };
 
 use crate::{
     trace,
-    route::Route,
+    route::UnorderedRoute,
     system::ArcRwLock,
 };
 use super::{
@@ -48,7 +48,7 @@ impl SystemHolder {
         );
     }
 
-    pub fn register_route(&mut self, route: &Route) {
+    pub fn register_route(&mut self, route: &UnorderedRoute) {
         for system in route {
             self.register_system(system);
         }

@@ -1,6 +1,6 @@
 [package]
 name = "route-optimizer"
-version = "0.2.3"
+version = "0.2.4"
 authors = ["ParkSnoopy <117149837+ParkSnoopy@users.noreply.github.com>"]
 edition = "2021"
 license = "AGPL-3.0"
@@ -13,17 +13,17 @@ lto   = true
 [dependencies]
 ansi-escapes = "0.2.0"
 nu-ansi-term = "0.50.1"
-clap = { version = "4.5.20", features = ["derive"] }
+clap = { version = "4.5.38", features = ["derive"] }
 futures = "0.3.31"
-itertools = "0.13.0"
-reqwest = { version = "0.12.9", features = ["cookies", "default-tls"] }
-scraper = "0.21.0"
-tokio = { version = "1.41.1", features = ["macros", "rt-multi-thread"] }
-derive_more = { version = "1.0.0", features = ["as_ref", "into_iterator"] }
-color-eyre = "0.6.3"
+itertools = "0.14.0"
+reqwest = { version = "0.12.15", features = ["cookies", "default-tls"] }
+scraper = "0.23.1"
+tokio = { version = "1.45.0", features = ["macros", "rt-multi-thread"] }
+derive_more = { version = "2.0.1", features = ["as_ref", "into_iterator"] }
+color-eyre = "0.6.4"
 factorial = "0.4.0"
 rayon = "1.10.0"
-terminal_size = "0.4.0"
+terminal_size = "0.4.2"
 
 [target."cfg(windows)".dependencies]
 enable-ansi-support = "0.2.1"

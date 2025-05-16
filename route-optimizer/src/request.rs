@@ -11,7 +11,7 @@ use crate::{
 
 
 
-pub fn make_url(system_pair: &SystemPair) -> String {
+pub fn make_url(system_pair: &SystemPair, avoid_system: String) -> String {
     format!("{}{}{}:{}{}",
         config::ROUTE_SEARCH_URL_PREFIX,
         match crate::CLI_ARGS.read().unwrap().route_option {
@@ -21,7 +21,7 @@ pub fn make_url(system_pair: &SystemPair) -> String {
         },
         system_pair.left().read().unwrap().name(),
         system_pair.right().read().unwrap().name(),
-        config::ROUTE_SEARCH_URL_POSTFIX,
+        avoid_system,
     )
 }
 
