@@ -20,6 +20,7 @@ pub struct Args {
     #[arg(short, long, value_parser = clap::value_parser!(System))]
     pub start: System,
 
+    // (optional)
     // system to end route
     #[arg(short, long, value_parser = clap::value_parser!(System))]
     pub end: Option<System>,
@@ -28,9 +29,10 @@ pub struct Args {
     #[arg(short = 'o', long, value_enum, default_value_t=RouteOption::Fastest)]
     pub route_option: RouteOption,
 
+    // (optional)
     // specific separator (,:) separated system names to AVOID travel
     #[arg(short, long, value_parser = clap::value_parser!(UnorderedRoute))]
-    pub avoid: UnorderedRoute,
+    pub avoid: Option<UnorderedRoute>,
 
     // concurrent fetches (too high may blocked by DOTLAN)
     #[arg(short, long, default_value_t=config::DEFAULT_PARAREL_REQUEST)]

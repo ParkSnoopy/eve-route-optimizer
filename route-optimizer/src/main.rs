@@ -69,7 +69,7 @@ async fn main() -> color_eyre::Result<()> {
             async move {
                 let url = make_url(
                     &system_pair,
-                    CLI_ARGS.read().unwrap().avoid.as_avoid_url()
+                    route::avoid_system_as_url_string(&CLI_ARGS.read().unwrap().avoid)
                 );
                 let resp = client.get(url).send().await.unwrap();
                 ( system_pair, resp.text().await )

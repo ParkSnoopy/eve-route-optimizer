@@ -37,16 +37,6 @@ impl UnorderedRoute {
             inner: b
         }
     }
-
-    pub fn as_avoid_url(&self) -> String {
-        let mut s = String::new();
-
-        for system in &self.inner {
-            s = s + &format!(":-{}", system.name())
-        }
-
-        s
-    }
 }
 
 impl std::str::FromStr for UnorderedRoute {
@@ -55,4 +45,16 @@ impl std::str::FromStr for UnorderedRoute {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(UnorderedRoute::new(s))
     }
+}
+
+pub fn avoid_system_as_url_string(avoid: &Option<UnorderedRoute>) -> String {
+    let mut s = String::new();
+
+    if let Some(inner) = avoid {
+        for system in inner {
+            s = s + &format!(":-{}", system.name())
+        }
+    };
+
+    s
 }
