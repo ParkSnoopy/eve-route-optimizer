@@ -1,0 +1,29 @@
+[package]
+name = "route-optimizer"
+version = "0.2.5"
+authors = ["ParkSnoopy <ParkSnoopy@users.noreply.github.com>"]
+edition = "2021"
+license = "AGPL-3.0"
+
+[profile.release]
+panic = "abort"
+strip = true
+lto   = true
+
+[dependencies]
+ansi-escapes = "0.2"
+nu-ansi-term = "0.50"
+clap = { version = "4.5", features = ["derive"] }
+futures = "0.3"
+itertools = "0.14"
+reqwest = { version = "0.12", features = ["cookies", "default-tls"] }
+scraper = "0.23"
+tokio = { version = "1.47", features = ["macros", "rt-multi-thread"] }
+derive_more = { version = "2.0", features = ["as_ref", "into_iterator"] }
+color-eyre = "0.6"
+factorial = "0.4"
+rayon = "1.11"
+terminal_size = "0.4"
+
+[target."cfg(windows)".dependencies]
+enable-ansi-support = "0.2"
