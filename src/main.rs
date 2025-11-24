@@ -33,10 +33,17 @@ use nu_ansi_term::Color;
 
 
 
-pub static PROGRESS_HOLDER: LazyLock<RwLock<progress::ProgressHolder>> =
-    LazyLock::new(|| RwLock::new(progress::ProgressHolder::new()));
 pub static CLI_ARGS: LazyLock<RwLock<cli::Args>> =
     LazyLock::new(|| RwLock::new(cli::Args::parse()));
+
+pub static SYSTEM_HOLDER: LazyLock<RwLock<SystemHolder>> =
+    LazyLock::new(|| RwLock::new(SystemHolder::from_cli_args(CLI_ARGS.read().unwrap())));
+
+
+
+pub static PROGRESS_HOLDER: LazyLock<RwLock<progress::ProgressHolder>> =
+    LazyLock::new(|| RwLock::new(progress::ProgressHolder::new()));
+
 pub static REQUEST_CLIENT: LazyLock<Client> = LazyLock::new(|| {
     Client::builder()
         .cookie_store(true)
@@ -44,8 +51,6 @@ pub static REQUEST_CLIENT: LazyLock<Client> = LazyLock::new(|| {
         .build()
         .unwrap()
 });
-pub static SYSTEM_HOLDER: LazyLock<RwLock<SystemHolder>> =
-    LazyLock::new(|| RwLock::new(SystemHolder::new()));
 
 
 
@@ -54,21 +59,6 @@ async fn main() -> color_eyre::Result<()> {
     #[cfg(all(target_family = "windows"))]
     enable_ansi_support::enable_ansi_support()?;
     color_eyre::install()?;
-
-    SYSTEM_HOLDER
-        .write()
-        .unwrap()
-        .register_route(&CLI_ARGS.read().unwrap().route);
-    SYSTEM_HOLDER
-        .write()
-        .unwrap()
-        .register_system(&CLI_ARGS.read().unwrap().start);
-    match &CLI_ARGS.read().unwrap().end {
-        Some(system) => {
-            SYSTEM_HOLDER.write().unwrap().register_system(&system);
-        }
-        _ => (),
-    }
 
     let system_pairs: Vec<SystemPair> = SYSTEM_HOLDER
         .read()

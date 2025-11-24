@@ -3,6 +3,7 @@ use std::{
     sync::{
         Arc,
         RwLock,
+        RwLockReadGuard,
     },
 };
 
@@ -12,6 +13,7 @@ use itertools::Itertools;
 use rayon::prelude::*;
 
 use crate::{
+    cli,
     route::UnorderedRoute,
     system::ArcRwLock,
     trace,
@@ -36,6 +38,18 @@ impl SystemHolder {
         SystemHolder {
             inner: HashMap::new(),
         }
+    }
+
+    pub fn from_cli_args(cli_args: RwLockReadGuard<cli::Args>) -> SystemHolder {
+        let mut h = SystemHolder::new();
+
+        h.register_route(&cli_args.route);
+        h.register_system(&cli_args.start);
+        if let Some(system) = &cli_args.end {
+            h.register_system(system);
+        }
+
+        h
     }
 
     pub fn get(&self, system_name: &String) -> &SyncSystem {
