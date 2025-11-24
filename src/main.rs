@@ -6,58 +6,75 @@ mod request;
 mod route;
 mod system;
 
+mod progress;
 #[allow(unused)]
 mod trace;
-mod progress;
 
-use system::{ SystemPair, SystemHolder };
-use request::{ make_url, parse_text_into_length };
+use std::sync::{
+    LazyLock,
+    RwLock,
+};
 
-use futures::{ stream, StreamExt };
+use system::{
+    SystemHolder,
+    SystemPair,
+};
+use request::{
+    make_url,
+    parse_text_into_length,
+};
+use futures::{
+    stream,
+    StreamExt,
+};
 use reqwest::Client;
-use std::sync::{ LazyLock, RwLock };
-
 use clap::Parser;
 use nu_ansi_term::Color;
 
 
 
-pub static PROGRESS_HOLDER: LazyLock<RwLock<progress::ProgressHolder>> = LazyLock::new(|| RwLock::new(
-    progress::ProgressHolder::new()
-));
-pub static CLI_ARGS: LazyLock<RwLock<cli::Args>> = LazyLock::new(|| RwLock::new(
-    cli::Args::parse()
-));
-pub static REQUEST_CLIENT: LazyLock<Client> = LazyLock::new(|| 
+pub static PROGRESS_HOLDER: LazyLock<RwLock<progress::ProgressHolder>> =
+    LazyLock::new(|| RwLock::new(progress::ProgressHolder::new()));
+pub static CLI_ARGS: LazyLock<RwLock<cli::Args>> =
+    LazyLock::new(|| RwLock::new(cli::Args::parse()));
+pub static REQUEST_CLIENT: LazyLock<Client> = LazyLock::new(|| {
     Client::builder()
         .cookie_store(true)
         .user_agent(config::USER_AGENT)
         .build()
         .unwrap()
-);
-pub static SYSTEM_HOLDER: LazyLock<RwLock<SystemHolder>> = LazyLock::new(|| RwLock::new(
-    SystemHolder::new()
-));
+});
+pub static SYSTEM_HOLDER: LazyLock<RwLock<SystemHolder>> =
+    LazyLock::new(|| RwLock::new(SystemHolder::new()));
 
 
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
-
-    #[cfg(all( target_family = "windows" ))]
+    #[cfg(all(target_family = "windows"))]
     enable_ansi_support::enable_ansi_support()?;
     color_eyre::install()?;
 
-    SYSTEM_HOLDER.write().unwrap().register_route(&CLI_ARGS.read().unwrap().route);
-    SYSTEM_HOLDER.write().unwrap().register_system(&CLI_ARGS.read().unwrap().start);
+    SYSTEM_HOLDER
+        .write()
+        .unwrap()
+        .register_route(&CLI_ARGS.read().unwrap().route);
+    SYSTEM_HOLDER
+        .write()
+        .unwrap()
+        .register_system(&CLI_ARGS.read().unwrap().start);
     match &CLI_ARGS.read().unwrap().end {
         Some(system) => {
             SYSTEM_HOLDER.write().unwrap().register_system(&system);
-        },
+        }
         _ => (),
     }
 
-    let system_pairs: Vec<SystemPair> = SYSTEM_HOLDER.read().unwrap().all_inter_systems_iter().collect();//.map(|system_pair| make_url(&system_pair)).collect();
+    let system_pairs: Vec<SystemPair> = SYSTEM_HOLDER
+        .read()
+        .unwrap()
+        .all_inter_systems_iter()
+        .collect(); //.map(|system_pair| make_url(&system_pair)).collect();
 
     println!();
     trace::info("Fetching distances between system...");
@@ -69,32 +86,33 @@ async fn main() -> color_eyre::Result<()> {
             async move {
                 let url = make_url(
                     &system_pair,
-                    route::avoid_system_as_url_string(&CLI_ARGS.read().unwrap().avoid)
+                    route::avoid_system_as_url_string(&CLI_ARGS.read().unwrap().avoid),
                 );
                 let resp = client.get(url).send().await.unwrap();
-                ( system_pair, resp.text().await )
+                (system_pair, resp.text().await)
             }
         })
         .buffer_unordered(CLI_ARGS.read().unwrap().concurrent);
 
     bodies
-        .for_each(|(system_pair, resp_text_result)| async move {
-            match resp_text_result {
-                Ok(resp_text) => {
-                    let distance = parse_text_into_length(&resp_text);
-                    system_pair.set_distance(distance).unwrap();
+        .for_each(|(system_pair, resp_text_result)| {
+            async move {
+                match resp_text_result {
+                    Ok(resp_text) => {
+                        let distance = parse_text_into_length(&resp_text);
+                        system_pair.set_distance(distance).unwrap();
 
-                    trace::ok(
-                        format!("Setting distance '{}' between system {}",
-                            Color::LightCyan.paint( distance.to_string() ),
-                            Color::Fixed(118).paint( system_pair.to_string() ),
-                        )
-                    );
-                },
-                Err(e) => {
-                    trace::error(format!("Error while processing request"));
-                    trace::debug(e.to_string());
-                },
+                        trace::ok(format!(
+                            "Setting distance '{}' between system {}",
+                            Color::LightCyan.paint(distance.to_string()),
+                            Color::Fixed(118).paint(system_pair.to_string()),
+                        ));
+                    }
+                    Err(e) => {
+                        trace::error(format!("Error while processing request"));
+                        trace::debug(e.to_string());
+                    }
+                }
             }
         })
         .await;
@@ -107,16 +125,29 @@ async fn main() -> color_eyre::Result<()> {
 
     trace::info("Start to build Shortest Path...");
 
-    let calculation_count: u128 = SYSTEM_HOLDER.read().unwrap().permutation_size_hint().unwrap_or(u128::MAX);
-    PROGRESS_HOLDER.write().unwrap().set_total(calculation_count);
+    let calculation_count: u128 = SYSTEM_HOLDER
+        .read()
+        .unwrap()
+        .permutation_size_hint()
+        .unwrap_or(u128::MAX);
+    PROGRESS_HOLDER
+        .write()
+        .unwrap()
+        .set_total(calculation_count);
     trace::info(format!("'{}' Calculation(s) to process", calculation_count));
 
     println!();
     println!();
     println!();
 
-    let feedback_step: usize = std::cmp::min(1_000_000, std::cmp::max(1, calculation_count/200) as usize);
-    let current_shortest = SYSTEM_HOLDER.read().unwrap().build_shortest_path( feedback_step );
+    let feedback_step: usize = std::cmp::min(
+        1_000_000,
+        std::cmp::max(1, calculation_count / 200) as usize,
+    );
+    let current_shortest = SYSTEM_HOLDER
+        .read()
+        .unwrap()
+        .build_shortest_path(feedback_step);
 
     current_shortest.read().unwrap().report_stdout();
 

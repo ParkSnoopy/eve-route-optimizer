@@ -2,7 +2,10 @@ use clap::Parser;
 
 use crate::{
     config,
-    route::{ UnorderedRoute, RouteOption },
+    route::{
+        RouteOption,
+        UnorderedRoute,
+    },
     system::System,
 };
 

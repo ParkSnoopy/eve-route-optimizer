@@ -1,10 +1,6 @@
-use color_eyre::{
-    Result,
-};
+use color_eyre::Result;
 
-use super::{
-    SyncSystem,
-};
+use super::SyncSystem;
 
 
 
@@ -16,7 +12,10 @@ pub struct SystemPair {
 impl SystemPair {
     pub fn new(systems: Vec<SyncSystem>) -> SystemPair {
         if systems.len() != 2 {
-            panic!("`systems` argument must be length of 2, given {}", systems.len());
+            panic!(
+                "`systems` argument must be length of 2, given {}",
+                systems.len()
+            );
         }
 
         SystemPair {
@@ -33,13 +32,20 @@ impl SystemPair {
     }
 
     pub fn set_distance(&self, distance: u64) -> Result<()> {
-        self.system1.write().unwrap().set_distance_to(&self.system2, distance)?;
-        self.system2.write().unwrap().set_distance_to(&self.system1, distance)?;
+        self.system1
+            .write()
+            .unwrap()
+            .set_distance_to(&self.system2, distance)?;
+        self.system2
+            .write()
+            .unwrap()
+            .set_distance_to(&self.system1, distance)?;
         Ok(())
     }
 
     pub fn to_string(&self) -> String {
-        format!("( {} <-> {} )",
+        format!(
+            "( {} <-> {} )",
             self.system1.read().unwrap().name(),
             self.system2.read().unwrap().name(),
         )
@@ -48,6 +54,11 @@ impl SystemPair {
 
 impl std::fmt::Display for SystemPair {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, "( {} <-> {} )", self.system1.read().unwrap().name(), self.system2.read().unwrap().name())
+        write!(
+            f,
+            "( {} <-> {} )",
+            self.system1.read().unwrap().name(),
+            self.system2.read().unwrap().name()
+        )
     }
 }

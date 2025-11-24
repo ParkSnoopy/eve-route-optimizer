@@ -1,18 +1,15 @@
+use std::collections::HashMap;
+
 use color_eyre::{
-    Result,
     eyre,
+    Result,
 };
 
-use std::collections::{ HashMap };
-
-use super::{
-    SyncSystem,
-};
+use super::SyncSystem;
 
 
 
-#[derive(Clone)]
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct System {
     name: String,
     distance_table: HashMap<String, u64>,
@@ -33,15 +30,18 @@ impl System {
     pub fn set_distance_to(&mut self, other: &SyncSystem, distance: u64) -> Result<()> {
         match self.get_distance_to(other) {
             None => {
-                self.distance_table.insert(other.read().unwrap().name().to_string(), distance);
+                self.distance_table
+                    .insert(other.read().unwrap().name().to_string(), distance);
                 Ok(())
-            },
+            }
             Some(_) => Err(eyre::eyre!("distance already set")),
         }
     }
 
     pub fn get_distance_to(&self, other: &SyncSystem) -> Option<u64> {
-        self.distance_table.get(other.read().unwrap().name()).copied()
+        self.distance_table
+            .get(other.read().unwrap().name())
+            .copied()
     }
 }
 

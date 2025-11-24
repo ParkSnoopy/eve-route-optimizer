@@ -1,7 +1,10 @@
-use terminal_size::{ terminal_size, Width };
-use nu_ansi_term::Color;
-
 use std::sync::LazyLock;
+
+use terminal_size::{
+    terminal_size,
+    Width,
+};
+use nu_ansi_term::Color;
 
 use crate::{
     config,
@@ -12,22 +15,23 @@ use crate::{
 
 static TRACE_USABLE_TERM_WIDTH: LazyLock<usize> = LazyLock::new(|| {
     let (Width(w), _) = terminal_size().expect(&trace::string::error("Unable to detect terminal"));
-    let w = ( w - 16 ) as usize;
-    assert!(w>0, "{}", trace::string::error("Usable Terminal Width is less or equal then Zero"));
+    let w = (w - 16) as usize;
+    assert!(
+        w > 0,
+        "{}",
+        trace::string::error("Usable Terminal Width is less or equal then Zero")
+    );
     w
 });
 
 pub struct ProgressHolder {
     total: u128,
-    done : u128,
+    done: u128,
 }
 
 impl ProgressHolder {
     pub fn new() -> ProgressHolder {
-        ProgressHolder {
-            total: 0,
-            done: 0,
-        }
+        ProgressHolder { total: 0, done: 0 }
     }
 
     pub fn set_total(&mut self, total: u128) {
@@ -39,7 +43,8 @@ impl ProgressHolder {
 
         let progress_bar = ProgressBar::from_total_done(self.total, self.done);
 
-        print!("{}  {}\n  {}\n",
+        print!(
+            "{}  {}\n  {}\n",
             ansi_escapes::CursorUp(2),
             trace::string::info(format!("In Progress ( {} / {} )", self.done, self.total)),
             trace::string::info(progress_bar.build()),
@@ -53,10 +58,10 @@ struct ProgressBar {
 }
 
 impl ProgressBar {
-    fn from_total_done(total:u128, done:u128) -> Self {
+    fn from_total_done(total: u128, done: u128) -> Self {
         // downcast to float, to perform percentage calculations
         let total = total as f64;
-        let done  = done  as f64;
+        let done = done as f64;
 
         let done_p = done / total; // range=[0, 1)
 
@@ -67,10 +72,15 @@ impl ProgressBar {
     }
 
     fn build(&self) -> String {
-        let done_s: String = std::iter::repeat(config::DONE_BAR_CHAR).take(self.done_n).collect();
-        let todo_s: String = std::iter::repeat(config::TODO_BAR_CHAR).take(self.todo_n).collect();
+        let done_s: String = std::iter::repeat(config::DONE_BAR_CHAR)
+            .take(self.done_n)
+            .collect();
+        let todo_s: String = std::iter::repeat(config::TODO_BAR_CHAR)
+            .take(self.todo_n)
+            .collect();
 
-        format!("[{}{}]",
+        format!(
+            "[{}{}]",
             Color::Fixed(082).paint(done_s),
             Color::Fixed(064).paint(todo_s),
         )

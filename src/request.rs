@@ -1,18 +1,22 @@
-use scraper::{ Html, Selector };
-
 use std::sync::LazyLock;
+
+use scraper::{
+    Html,
+    Selector,
+};
 
 use crate::{
     config,
-    trace,
     route::RouteOption,
     system::SystemPair,
+    trace,
 };
 
 
 
 pub fn make_url(system_pair: &SystemPair, avoid_system: String) -> String {
-    format!("{}{}{}:{}{}",
+    format!(
+        "{}{}{}:{}{}",
         config::ROUTE_SEARCH_URL_PREFIX,
         match crate::CLI_ARGS.read().unwrap().route_option {
             RouteOption::Fastest => "",
@@ -25,8 +29,10 @@ pub fn make_url(system_pair: &SystemPair, avoid_system: String) -> String {
     )
 }
 
-static SEL_0: LazyLock<Selector> = LazyLock::new(|| Selector::parse(r#"div[id="navtools"]"#).unwrap());
-static SEL_1: LazyLock<Selector> = LazyLock::new(|| Selector::parse(r#"table[class="tablelist table-tooltip"]"#).unwrap());
+static SEL_0: LazyLock<Selector> =
+    LazyLock::new(|| Selector::parse(r#"div[id="navtools"]"#).unwrap());
+static SEL_1: LazyLock<Selector> =
+    LazyLock::new(|| Selector::parse(r#"table[class="tablelist table-tooltip"]"#).unwrap());
 static SEL_2: LazyLock<Selector> = LazyLock::new(|| Selector::parse(r#"tr"#).unwrap());
 static SEL_3: LazyLock<Selector> = LazyLock::new(|| Selector::parse(r#"td"#).unwrap());
 
