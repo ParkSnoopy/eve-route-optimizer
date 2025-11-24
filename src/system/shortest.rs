@@ -10,9 +10,10 @@ use super::SyncRoute;
 
 
 
+#[derive(Clone)]
 pub struct CurrentShortest {
-    routes: Vec<SyncRoute>,
-    length: u64,
+    pub routes: Vec<SyncRoute>,
+    pub length: u64,
 }
 
 impl CurrentShortest {

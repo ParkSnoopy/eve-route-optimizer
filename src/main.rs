@@ -1,3 +1,7 @@
+#![feature(lock_value_accessors)]
+
+
+
 mod config;
 
 mod cli;
@@ -75,8 +79,7 @@ async fn main() -> color_eyre::Result<()> {
             let client = &REQUEST_CLIENT;
             async move {
                 let url = make_url(
-                    &system_pair,
-                    route::avoid_system_as_url_string(&CLI_ARGS.read().unwrap().avoid),
+                    &system_pair
                 );
                 let resp = client.get(url).send().await.unwrap();
                 (system_pair, resp.text().await)
@@ -139,7 +142,7 @@ async fn main() -> color_eyre::Result<()> {
         .unwrap()
         .build_shortest_path(feedback_step);
 
-    current_shortest.read().unwrap().report_stdout();
+    current_shortest.report_stdout();
 
     Ok(())
 }

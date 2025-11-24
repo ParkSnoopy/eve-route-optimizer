@@ -83,7 +83,7 @@ impl SystemHolder {
         ((self.inner.len() - 1) as u128).checked_factorial()
     }
 
-    pub fn build_shortest_path(&self, feedback_step: usize) -> ArcRwLock<CurrentShortest> {
+    pub fn build_shortest_path(&self, feedback_step: usize) -> CurrentShortest {
         let system_from: &SyncSystem = self.get(crate::CLI_ARGS.read().unwrap().start.name());
         let system_to: Option<&SyncSystem> = match &crate::CLI_ARGS.read().unwrap().end {
             Some(system) => Some(self.get(system.name())),
@@ -176,6 +176,6 @@ impl SystemHolder {
             .unwrap()
             .feedback(self.permutation_size_hint().unwrap_or(u128::MAX));
 
-        current_shortest
+        current_shortest.get_cloned().unwrap()
     }
 }

@@ -14,7 +14,21 @@ use crate::{
 
 
 
-pub fn make_url(system_pair: &SystemPair, avoid_system: String) -> String {
+fn avoid_to_embed() -> String {
+    let mut s = String::new();
+    match &crate::CLI_ARGS.read().unwrap().avoid {
+        None => {},
+        Some(unord_route) => {
+
+            for system in (&unord_route).into_iter() {
+                s += &format!(":-{}", system.name());
+            }
+        }
+    }
+    s
+}
+
+pub fn make_url(system_pair: &SystemPair) -> String {
     format!(
         "{}{}{}:{}{}",
         config::ROUTE_SEARCH_URL_PREFIX,
@@ -25,7 +39,7 @@ pub fn make_url(system_pair: &SystemPair, avoid_system: String) -> String {
         },
         system_pair.left().read().unwrap().name(),
         system_pair.right().read().unwrap().name(),
-        avoid_system,
+        avoid_to_embed(),
     )
 }
 
