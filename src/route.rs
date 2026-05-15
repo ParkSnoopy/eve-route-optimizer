@@ -8,8 +8,6 @@ use crate::{
     system::System,
 };
 
-
-
 #[derive(Clone, IntoIterator, Debug)]
 pub struct UnorderedRoute {
     #[into_iterator(owned, ref, ref_mut)]

@@ -12,14 +12,11 @@ use crate::{
     trace,
 };
 
-
-
 fn avoid_to_embed() -> String {
     let mut s = String::new();
     match &crate::CLI_ARGS.read().unwrap().avoid {
-        None => {},
+        None => {}
         Some(unord_route) => {
-
             for system in (&unord_route).into_iter() {
                 s += &format!(":-{}", system.name());
             }

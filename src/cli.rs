@@ -9,8 +9,6 @@ use crate::{
     system::System,
 };
 
-
-
 #[derive(Parser, Clone, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Args {

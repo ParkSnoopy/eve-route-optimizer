@@ -1,7 +1,5 @@
 use super::base::*;
 
-
-
 pub fn ok<S: AsRef<str>>(msg: S) -> String {
     ok!(msg)
 }

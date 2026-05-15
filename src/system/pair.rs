@@ -2,8 +2,6 @@ use color_eyre::Result;
 
 use super::SyncSystem;
 
-
-
 pub struct SystemPair {
     system1: SyncSystem,
     system2: SyncSystem,

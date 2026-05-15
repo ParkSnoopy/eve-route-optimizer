@@ -11,8 +11,6 @@ use crate::{
     trace,
 };
 
-
-
 static TRACE_USABLE_TERM_WIDTH: LazyLock<usize> = LazyLock::new(|| {
     let (Width(w), _) = terminal_size().expect(&trace::string::error("Unable to detect terminal"));
     let w = (w - 16) as usize;

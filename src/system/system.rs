@@ -7,8 +7,6 @@ use color_eyre::{
 
 use super::SyncSystem;
 
-
-
 #[derive(Clone, Debug)]
 pub struct System {
     name: String,

@@ -1,7 +1,5 @@
 #![feature(lock_value_accessors)]
 
-
-
 mod config;
 
 mod cli;
@@ -35,15 +33,11 @@ use reqwest::Client;
 use clap::Parser;
 use nu_ansi_term::Color;
 
-
-
 pub static CLI_ARGS: LazyLock<RwLock<cli::Args>> =
     LazyLock::new(|| RwLock::new(cli::Args::parse()));
 
 pub static SYSTEM_HOLDER: LazyLock<RwLock<SystemHolder>> =
     LazyLock::new(|| RwLock::new(SystemHolder::from_cli_args(CLI_ARGS.read().unwrap())));
-
-
 
 pub static PROGRESS_HOLDER: LazyLock<RwLock<progress::ProgressHolder>> =
     LazyLock::new(|| RwLock::new(progress::ProgressHolder::new()));
@@ -55,8 +49,6 @@ pub static REQUEST_CLIENT: LazyLock<Client> = LazyLock::new(|| {
         .build()
         .unwrap()
 });
-
-
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
@@ -78,9 +70,7 @@ async fn main() -> color_eyre::Result<()> {
         .map(|system_pair| {
             let client = &REQUEST_CLIENT;
             async move {
-                let url = make_url(
-                    &system_pair
-                );
+                let url = make_url(&system_pair);
                 let resp = client.get(url).send().await.unwrap();
                 (system_pair, resp.text().await)
             }

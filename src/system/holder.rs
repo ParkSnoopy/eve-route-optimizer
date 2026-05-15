@@ -25,8 +25,6 @@ use super::{
     SystemPair,
 };
 
-
-
 #[derive(IntoIterator)]
 pub struct SystemHolder {
     #[into_iterator(owned, ref, ref_mut)]

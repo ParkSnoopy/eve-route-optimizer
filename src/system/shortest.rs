@@ -8,8 +8,6 @@ use nu_ansi_term::Color;
 use crate::trace;
 use super::SyncRoute;
 
-
-
 #[derive(Clone)]
 pub struct CurrentShortest {
     pub routes: Vec<SyncRoute>,
