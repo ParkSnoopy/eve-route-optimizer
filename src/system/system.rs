@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use color_eyre::{
-    eyre,
     Result,
+    eyre,
 };
 
 use super::SyncSystem;

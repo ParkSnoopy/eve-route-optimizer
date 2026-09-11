@@ -2,7 +2,7 @@
 name = "route-optimizer"
 version = "0.2.5"
 authors = ["ParkSnoopy <ParkSnoopy@users.noreply.github.com>"]
-edition = "2021"
+edition = "2024"
 license = "AGPL-3.0"
 
 [profile.release]
@@ -15,10 +15,10 @@ ansi-escapes = "0.2"
 nu-ansi-term = "0.50"
 clap = { version = "4.6", features = ["derive"] }
 futures = "0.3"
-itertools = "0.14"
+itertools = "0.15"
 reqwest = { version = "0.13", features = ["cookies", "default-tls"] }
 scraper = "0.27"
-tokio = { version = "1.52", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.53", features = ["macros", "rt-multi-thread"] }
 derive_more = { version = "2.1", features = ["as_ref", "into_iterator"] }
 color-eyre = "0.6"
 factorial = "0.4"

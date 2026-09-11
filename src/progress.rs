@@ -1,8 +1,8 @@
 use std::sync::LazyLock;
 
 use terminal_size::{
-    terminal_size,
     Width,
+    terminal_size,
 };
 use nu_ansi_term::Color;
 

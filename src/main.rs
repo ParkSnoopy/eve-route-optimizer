@@ -26,8 +26,8 @@ use request::{
     parse_text_into_length,
 };
 use futures::{
-    stream,
     StreamExt,
+    stream,
 };
 use reqwest::Client;
 use clap::Parser;
