@@ -12,14 +12,10 @@ use crate::{
 };
 
 static TRACE_USABLE_TERM_WIDTH: LazyLock<usize> = LazyLock::new(|| {
-    let (Width(w), _) = terminal_size().expect(&trace::string::error("Unable to detect terminal"));
-    let w = (w - 16) as usize;
-    assert!(
-        w > 0,
-        "{}",
-        trace::string::error("Usable Terminal Width is less or equal then Zero")
-    );
-    w
+    terminal_size()
+        .map_or(80, |(Width(w), _)| w)
+        .saturating_sub(16)
+        .max(1) as usize
 });
 
 pub struct ProgressHolder {
@@ -82,5 +78,15 @@ impl ProgressBar {
             Color::Fixed(082).paint(done_s),
             Color::Fixed(064).paint(todo_s),
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ProgressBar;
+
+    #[test]
+    fn builds_without_a_terminal() {
+        assert!(!ProgressBar::from_total_done(1, 1).build().is_empty());
     }
 }

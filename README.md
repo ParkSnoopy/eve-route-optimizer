@@ -7,10 +7,13 @@ Go to [Release](https://github.com/ParkSnoopy/EVE-Online-Route-Optimizer/release
 - Quickstart:
 > Pass systems to route with `,` between each system name
 ```cmd
-$ route-optimizer --route Hek,BKG-Q2,SI-I89 --start Jita --end Amarr
+route-optimizer --route Hek,BKG-Q2,SI-I89 --start Jita --end Amarr
+```
+```bash
+cargo run -- --route Hek,BKG-Q2,SI-I89 --start Jita --end Amarr
 ```
 
 - To check all available options:
 ```cmd
-$ route-optimizer --help
+route-optimizer --help
 ```

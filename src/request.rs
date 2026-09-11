@@ -43,7 +43,7 @@ pub fn make_url(system_pair: &SystemPair) -> String {
 static SEL_0: LazyLock<Selector> =
     LazyLock::new(|| Selector::parse(r#"div[id="navtools"]"#).unwrap());
 static SEL_1: LazyLock<Selector> =
-    LazyLock::new(|| Selector::parse(r#"table[class="tablelist table-tooltip"]"#).unwrap());
+    LazyLock::new(|| Selector::parse("table.tablelist.table-tooltip").unwrap());
 static SEL_2: LazyLock<Selector> = LazyLock::new(|| Selector::parse(r#"tr"#).unwrap());
 static SEL_3: LazyLock<Selector> = LazyLock::new(|| Selector::parse(r#"td"#).unwrap());
 
@@ -69,4 +69,24 @@ pub fn parse_text_into_length(text: &String) -> u64 {
         .expect(&trace::string::error("Failed to parse route length"));
 
     distance - 1 // route start from self
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_text_into_length;
+
+    #[test]
+    fn parses_route_table_with_additional_classes() {
+        let text = r#"
+            <div id="navtools">
+                <table class="tablelist hoverlist table-tooltip">
+                    <tr><td>1.</td></tr>
+                    <tr><td>2.</td></tr>
+                </table>
+            </div>
+        "#
+        .to_string();
+
+        assert_eq!(parse_text_into_length(&text), 1);
+    }
 }
